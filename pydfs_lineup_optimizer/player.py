@@ -1,11 +1,30 @@
 from __future__ import division
+from collections import namedtuple
+from datetime import datetime
 from typing import List, Optional
+from pytz import timezone
+
+
+GameInfo = namedtuple('GameInfo', ['home_team', 'away_team', 'starts_at', 'game_started'])
 
 
 class Player(object):
-    def __init__(self, player_id,  first_name, last_name, positions, team, salary, fppg, is_injured=False,
-                 max_exposure=None, projected_ownership=None):
-        # type: (int, str, str, List[str], str, float, float, bool, Optional[float], Optional[float]) -> None
+    def __init__(self,
+                 player_id,  # type: str
+                 first_name,  # type: str
+                 last_name,  # type: str
+                 positions,  # type: List[str]
+                 team,  # type: str
+                 salary,  # type: float
+                 fppg,  # type: float
+                 is_injured=False,  # type: bool
+                 max_exposure=None,  # type: Optional[float]
+                 min_exposure=None,  # type: Optional[float]
+                 projected_ownership=None,  # type: Optional[float]
+                 game_info=None,  # type: Optional[GameInfo]
+                 roster_order=None,  # type: Optional[int]
+                 ):
+        # type: (...) -> None
         self.id = player_id
         self.first_name = first_name
         self.last_name = last_name
@@ -14,31 +33,49 @@ class Player(object):
         self.salary = salary
         self.fppg = fppg
         self.is_injured = is_injured
-        self._max_exposure = None
+        self.game_info = game_info
+        self._max_exposure = None  # type: Optional[float]
         self.max_exposure = max_exposure
-        self._projected_ownership = None
+        self._min_exposure = None  # type: Optional[float]
+        self.min_exposure = min_exposure
+        self._projected_ownership = None  # type: Optional[float]
         self.projected_ownership = projected_ownership
+        self.roster_order = roster_order
 
     def __repr__(self):
         return '%s %s (%s)' % (self.full_name, '/'.join(self.positions), self.team)
 
+    def __hash__(self):
+        return hash(self.id)
+
     @property
     def max_exposure(self):
-        # type: () -> float
+        # type: () -> Optional[float]
         return self._max_exposure
 
     @max_exposure.setter
     def max_exposure(self, max_exposure):
-        # type: (float) -> None
+        # type: (Optional[float]) -> None
         self._max_exposure = max_exposure / 100 if max_exposure and max_exposure > 1 else max_exposure
 
     @property
+    def min_exposure(self):
+        # type: () -> Optional[float]
+        return self._min_exposure
+
+    @min_exposure.setter
+    def min_exposure(self, min_exposure):
+        # type: (Optional[float]) -> None
+        self._min_exposure = min_exposure / 100 if min_exposure and min_exposure > 1 else min_exposure
+
+    @property
     def projected_ownership(self):
-        # type: () -> float
+        # type: () -> Optional[float]
         return self._projected_ownership
 
     @projected_ownership.setter
     def projected_ownership(self, projected_ownership):
+        # type: (Optional[float]) -> None
         self._projected_ownership = projected_ownership / 100 if projected_ownership and projected_ownership > 1 \
             else projected_ownership
 
@@ -51,6 +88,17 @@ class Player(object):
     def efficiency(self):
         # type: () -> float
         return round(self.fppg / self.salary, 6)
+
+    @property
+    def is_game_started(self):
+        # type: () -> bool
+        if self.game_info:
+            if self.game_info.game_started:
+                return True
+            starts_at = self.game_info.starts_at
+            if starts_at and datetime.now(starts_at.tzinfo) > starts_at:
+                return True
+        return False
 
 
 class LineupPlayer(object):

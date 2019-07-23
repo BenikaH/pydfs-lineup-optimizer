@@ -73,7 +73,9 @@ You can do this using following code:
 .. code-block:: python
 
     player = optimizer.get_player_by_name('Rodney Hood') # find player with specified name in your optimizer
+    second_player = optimizer.get_player_by_id('ID00001')  # find player with player id
     optimizer.add_player_to_lineup(player) # lock this player in lineup
+    optimizer.add_player_to_lineup(second_player)
 
 Locked players can be unlocked as well:
 
@@ -88,23 +90,24 @@ Also you can exclude some players from optimization process and restore players 
     optimizer.remove_player(player)
     optimizer.restore_player(player)
 
-You can specify maximum exposure for some players or for all players, you have several ways how to do this.
-You can add "Max Exposure" column with exposure percentage for some players to csv that you will parse when load players.
-Or you can set max_exposure property in Player object. If you want to set fixed exposure for all players you can
+You can specify maximum and minimum exposures for some players or max exposure for all players, you have several ways how to do this.
+You can add "Max Exposure" and "Min Exposure" columns with exposure percentage for some players to csv that will be parsed while players loading.
+Or you can set max_exposure/min_exposure property in Player object. If you want to set fixed max exposure for all players you can
 pass max_exposure parameter to optimize method
 
 .. code-block:: python
 
     player = optimizer.players[0]  # get random player from optimizer players
-    player.max_exposure = 0.5  # set 50% exposure
+    player.max_exposure = 0.5  # set 50% max exposure
+    player.min_exposure = 0.3  # set 30% min exposure
 
     lineups = optimizer.optimize(n=10, max_exposure=0.3)  # set 30% exposure for all players
 
 .. note::
 
-   Exposure working with locked players, so if you lock some player and set exposure for 50% percentage
+   Exposure working with locked players, so if you lock some player and set max exposure to 50% percentage
    this player will appears only in 50% lineups.
-   Player exposure has higher priority than max_exposure that you pass in optimize method.
+   Player max exposure has higher priority than max_exposure passed in optimize method.
    Exposure percentage rounds to ceil.
 
 Optimizer also have randomness feature. It adds some deviation for players projection for
@@ -140,4 +143,21 @@ Below is an full example of how **pydfs-lineup-optimizer** can be used to genera
     optimizer.add_player_to_lineup(harden)
     optimizer.add_player_to_lineup(westbrook)  # Lock Harden and Westbrook
     for lineup in optimizer.optimize(n=10, max_exposure=0.3):
+        print(lineup)
+
+DraftKings Late-Swap
+--------------------
+
+Optimizer provides additional functionality for DK that allows to re-optimize existed lineups.
+For this you should load lineups, you can do it from csv file generated in DK lobby for specific contest.
+Then you should pass loaded lineups to `optimize_lineups` method.
+Players with started game will be locked on specific positions and optimizer will change only players with upcoming game.
+
+.. code-block:: python
+
+    csv_filename = "dk_nba.csv"
+    optimizer = get_optimizer(Site.DRAFTKINGS, Sport.BASKETBALL)
+    optimizer.load_players_from_csv(csv_filename)
+    lineups = optimizer.load_lineups_from_csv(csv_filename)
+    for lineup in optimizer.optimize_lineups(lineups):
         print(lineup)
