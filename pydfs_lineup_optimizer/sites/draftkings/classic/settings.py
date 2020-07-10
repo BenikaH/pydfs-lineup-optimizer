@@ -2,11 +2,13 @@ from pydfs_lineup_optimizer.settings import BaseSettings, LineupPosition
 from pydfs_lineup_optimizer.constants import Sport, Site
 from pydfs_lineup_optimizer.sites.sites_registry import SitesRegistry
 from pydfs_lineup_optimizer.lineup_printer import IndividualSportLineupPrinter
+from pydfs_lineup_optimizer.sites.draftkings.classic.importer import DraftKingsCSVImporter
 
 
 class DraftKingsSettings(BaseSettings):
     site = Site.DRAFTKINGS
     budget = 50000
+    csv_importer = DraftKingsCSVImporter
 
 
 @SitesRegistry.register_settings
@@ -42,11 +44,11 @@ class DraftKingsFootballSettings(DraftKingsSettings):
     sport = Sport.FOOTBALL
     positions = [
         LineupPosition('QB', ('QB',)),
-        LineupPosition('WR1', ('WR',)),
-        LineupPosition('WR2', ('WR',)),
-        LineupPosition('WR3', ('WR',)),
-        LineupPosition('RB1', ('RB',)),
-        LineupPosition('RB2', ('RB',)),
+        LineupPosition('RB', ('RB',)),
+        LineupPosition('RB', ('RB',)),
+        LineupPosition('WR', ('WR',)),
+        LineupPosition('WR', ('WR',)),
+        LineupPosition('WR', ('WR',)),
         LineupPosition('TE', ('TE',)),
         LineupPosition('FLEX', ('WR', 'RB', 'TE')),
         LineupPosition('DST', ('DST',))
@@ -56,12 +58,14 @@ class DraftKingsFootballSettings(DraftKingsSettings):
 @SitesRegistry.register_settings
 class DraftKingsHockeySettings(DraftKingsSettings):
     sport = Sport.HOCKEY
+    min_teams = 3
+    total_teams_exclude_positions = ['G']
     positions = [
-        LineupPosition('W', ('LW', 'RW')),
-        LineupPosition('W', ('LW', 'RW')),
-        LineupPosition('W', ('LW', 'RW')),
         LineupPosition('C', ('C',)),
         LineupPosition('C', ('C',)),
+        LineupPosition('W', ('LW', 'RW')),
+        LineupPosition('W', ('LW', 'RW')),
+        LineupPosition('W', ('LW', 'RW')),
         LineupPosition('D', ('D', )),
         LineupPosition('D', ('D', )),
         LineupPosition('G', ('G',)),

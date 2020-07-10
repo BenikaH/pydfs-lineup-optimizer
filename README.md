@@ -10,27 +10,27 @@ $ pip install pydfs-lineup-optimizer
 ## Support
 Now it supports following dfs sites:
 
-League | DraftKings | FanDuel | FantasyDraft | Yahoo | FanBall | DraftKing Captain Mode |
------- | ---------- | ------- | ------------ | ----- | ------- | ---------------------- |
-NFL    | +          | +       | +            | +     | +       | +                      |
-NBA    | +          | +       | +            | +     | -       | +                      |
-NHL    | +          | +       | +            | +     | -       | -                      |
-MLB    | +          | +       | +            | +     | -       | +                      |
-WNBA   | +          | +       | -            | -     | -       | +                      |
-Golf   | +          | -       | +            | +     | -       | -                      |
-Soccer | +          | -       | -            | +     | -       | -                      |
-CFL    | +          | -       | -            | -     | -       | -                      |
-LOL    | -          | -       | -            | -     | -       | +                      |
-MMA    | +          | -       | -            | -     | -       | -                      |
-NASCAR | +          | -       | -            | -     | -       | -                      |
-Tennis | +          | -       | -            | -     | -       | -                      |
+League | DraftKings | FanDuel | FantasyDraft | Yahoo | FanBall | DraftKing Captain Mode | FanDuel Single Game |
+------ | ---------- | ------- | ------------ | ----- | ------- | ---------------------- | ------------------- |
+NFL    | +          | +       | +            | +     | +       | +                      | +                   |
+NBA    | +          | +       | +            | +     | -       | +                      | +                   |
+NHL    | +          | +       | +            | +     | -       | -                      | -                   |
+MLB    | +          | +       | +            | +     | -       | +                      | -                   |
+WNBA   | +          | +       | -            | -     | -       | +                      | -                   |
+Golf   | +          | +       | +            | +     | -       | -                      | -                   |
+Soccer | +          | -       | -            | +     | -       | +                      | -                   |
+CFL    | +          | -       | -            | -     | -       | -                      | -                   |
+LOL    | -          | +       | -            | -     | -       | +                      | +                   |
+MMA    | +          | -       | -            | -     | -       | -                      | -                   |
+NASCAR | +          | -       | -            | -     | -       | -                      | -                   |
+Tennis | +          | -       | -            | -     | -       | -                      | -                   |
 
 
 ## Documentation
 Documentation is available at https://pydfs-lineup-optimizer.readthedocs.io/en/latest
 
 ## Example
-Here is a example for evaluating optimal lineup for Yahoo fantasy NBA. It's loads players list from "yahoo-NBA.csv" and select 10 best lineups.
+Here is an example for evaluating optimal lineup for Yahoo fantasy NBA. It loads players list from "yahoo-NBA.csv" and select 10 best lineups.
 ```python
 from pydfs_lineup_optimizer import Site, Sport, get_optimizer
 

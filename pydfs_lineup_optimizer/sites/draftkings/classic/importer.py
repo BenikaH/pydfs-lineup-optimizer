@@ -2,23 +2,19 @@ import csv
 from itertools import islice
 from datetime import datetime
 from pytz import timezone
+from typing import Dict, Optional
 from pydfs_lineup_optimizer.exceptions import LineupOptimizerIncorrectCSV
 from pydfs_lineup_optimizer.lineup_importer import CSVImporter
 from pydfs_lineup_optimizer.player import Player, LineupPlayer, GameInfo
 from pydfs_lineup_optimizer.lineup import Lineup
-from pydfs_lineup_optimizer.sites.sites_registry import SitesRegistry
-from pydfs_lineup_optimizer.constants import Site
+from pydfs_lineup_optimizer.tz import get_timezone
 
 
-@SitesRegistry.register_csv_importer
 class DraftKingsCSVImporter(CSVImporter):  # pragma: nocover
-    site = Site.DRAFTKINGS
-    DEFAULT_TIMEZONE = 'US/Eastern'
-
-    def _parse_game_info(self, row):
+    def _parse_game_info(self, row: Dict) -> Optional[GameInfo]:
         game_info = row.get('Game Info')
         if not game_info:
-            return
+            return None
         if game_info in ('In Progress', 'Final'):
             return GameInfo(  # No game info provided, just mark game as started
                 home_team='',
@@ -27,9 +23,9 @@ class DraftKingsCSVImporter(CSVImporter):  # pragma: nocover
                 game_started=True)
         try:
             teams, date, time, tz = game_info.rsplit(' ', 3)
-            away_team, home_team = teams.upper().split('@')
+            away_team, home_team = teams.split('@')
             starts_at = datetime.strptime(date + time, '%m/%d/%Y%I:%M%p').\
-                replace(tzinfo=timezone(self.DEFAULT_TIMEZONE))
+                replace(tzinfo=timezone(get_timezone()))
             return GameInfo(
                 home_team=home_team,
                 away_team=away_team,
@@ -37,9 +33,9 @@ class DraftKingsCSVImporter(CSVImporter):  # pragma: nocover
                 game_started=False
             )
         except ValueError:
-            return
+            return None
 
-    def _row_to_player(self, row):
+    def _row_to_player(self, row: Dict) -> Player:
         try:
             name = row['Name'].split()
             player = Player(

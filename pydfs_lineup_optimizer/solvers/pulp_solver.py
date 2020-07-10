@@ -8,10 +8,10 @@ class PuLPSolver(Solver):
     LP_SOLVER = None
 
     def __init__(self):
-        self.prob = None
+        self.prob = LpProblem('Daily Fantasy Sports', LpMaximize)
 
     def setup_solver(self):
-        self.prob = LpProblem('Daily Fantasy Sports', LpMaximize)
+        pass
 
     def add_variable(self, name):
         return LpVariable(name, cat=LpBinary)
@@ -45,7 +45,8 @@ class PuLPSolver(Solver):
         if self.prob.status == LpStatusOptimal:
             result = []
             for variable in self.prob.variables():
-                if round(variable.value()) == 1.0:
+                val = variable.value()
+                if val is not None and round(val) == 1.0:
                     result.append(variable)
             return result
         else:

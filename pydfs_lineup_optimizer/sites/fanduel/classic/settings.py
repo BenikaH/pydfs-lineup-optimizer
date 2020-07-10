@@ -1,20 +1,24 @@
+from typing import List, Type, Optional
 from pydfs_lineup_optimizer.settings import BaseSettings, LineupPosition
-from pydfs_lineup_optimizer.constants import Sport, Site
+from pydfs_lineup_optimizer.constants import Sport, Site, PlayerRank
 from pydfs_lineup_optimizer.sites.sites_registry import SitesRegistry
-from pydfs_lineup_optimizer.lineup_printer import DropLowestLineupPrinter
-from pydfs_lineup_optimizer.rules import FanduelBaseballRosterRule
+from pydfs_lineup_optimizer.lineup_printer import IndividualSportLineupPrinter
+from pydfs_lineup_optimizer.rules import OptimizerRule, FanduelBaseballRosterRule, FanduelSingleGameStarRule
+from pydfs_lineup_optimizer.sites.fanduel.classic.importer import FanDuelCSVImporter
+from pydfs_lineup_optimizer.sites.fanduel.single_game.importer import build_fanduel_single_game_importer
 
 
 class FanDuelSettings(BaseSettings):
     site = Site.FANDUEL
     budget = 60000
-    max_from_one_team = 4
+    max_from_one_team = 4  # type: Optional[int]
+    min_teams = 3  # type: Optional[int]
+    csv_importer = FanDuelCSVImporter
 
 
 @SitesRegistry.register_settings
 class FanDuelBasketballSettings(FanDuelSettings):
     sport = Sport.BASKETBALL
-    lineup_printer = DropLowestLineupPrinter
     positions = [
         LineupPosition('PG', ('PG', )),
         LineupPosition('PG', ('PG', )),
@@ -84,6 +88,7 @@ class FanDuelBaseballSettings(FanDuelSettings):
 class FanDuelWnbaSettings(FanDuelSettings):
     sport = Sport.WNBA
     budget = 40000
+    extra_rules = []  # type: List[Type[OptimizerRule]]
     positions = [
         LineupPosition('G', ('G', )),
         LineupPosition('G', ('G', )),
@@ -92,4 +97,38 @@ class FanDuelWnbaSettings(FanDuelSettings):
         LineupPosition('F', ('F', )),
         LineupPosition('F', ('F', )),
         LineupPosition('F', ('F', )),
+    ]
+
+
+@SitesRegistry.register_settings
+class FanDuelGolfSettings(FanDuelSettings):
+    sport = Sport.GOLF
+    max_from_one_team = None
+    extra_rules = []  # type: List[Type[OptimizerRule]]
+    lineup_printer = IndividualSportLineupPrinter
+    positions = [
+        LineupPosition('G', ('G', )),
+        LineupPosition('G', ('G', )),
+        LineupPosition('G', ('G', )),
+        LineupPosition('G', ('G', )),
+        LineupPosition('G', ('G', )),
+        LineupPosition('G', ('G', )),
+    ]
+
+
+@SitesRegistry.register_settings
+class FanDuelLOLSettings(FanDuelSettings):
+    sport = Sport.LEAGUE_OF_LEGENDS
+    max_from_one_team = 4
+    min_teams = 3
+    csv_importer = build_fanduel_single_game_importer(mvp=False, star=True, pro=False)
+    extra_rules = [FanduelSingleGameStarRule]  # type: List[Type[OptimizerRule]]
+    positions = [
+        LineupPosition('STAR', ('TOP', 'MID', 'ADC', 'JNG', 'SUP'), for_rank=PlayerRank.STAR),
+        LineupPosition('TOP', ('TOP',)),
+        LineupPosition('JNG', ('JNG',)),
+        LineupPosition('MID', ('MID',)),
+        LineupPosition('ADC', ('ADC',)),
+        LineupPosition('SUP', ('SUP',)),
+        LineupPosition('TEAM', ('TEAM',)),
     ]
